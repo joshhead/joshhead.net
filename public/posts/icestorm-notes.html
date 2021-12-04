@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Josh Headapohl</title>
+    <style>
+        body {
+          font-family: sans-serif;
+          font-size: 25px;
+          line-height: 1.5em;
+          color: #36454F;
+          background-color: #FFFFFF;
+        }
+
+        a:link,
+        a:visited {
+          color: #36454F;
+        }
+
+        .home-link {
+          text-decoration: none;
+        }
+
+        .layout__column {
+          max-width: 50em;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .heading {
+          color: #043B66;
+          font-weight: bold;
+        }
+
+        .heading--main {
+          text-align: center;
+        }
+
+        .code {
+          margin: 1em;
+          padding: 1em;
+          font-family: monospace;
+          color: lightgray;
+          background: #222;
+          border-radius: 10px;
+          line-height: 1.2em;
+        }
+
+        .code__line {
+        }
+
+        .footer {
+          font-size: 0.5em;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="layout__column">
+      <a href="/" class="home-link"><h1 class="heading heading--main">Josh Headapohl</h1></a>
+      <h2 class="heading">IceStorm Notes</h2>
+      <p>
+        <a href="http://www.clifford.at/icestorm/">Project IceStorm</a> provides all the open-source software you need to run code on a handful of <abbr title="Field Programmable Gate Array">FPGA</abbr>'s. Unlike the official Lattice programming tools, it can run on my Mac (or a Raspberry Pi!) I have a project in mind, so I picked up an <a href="http://www.latticesemi.com/en/Products/DevelopmentBoardsAndKits/iCE40HX8KBreakoutBoard.aspx">iCE40-HX8K Breakout Board</a> and started learning how to use it.
+      </p>
+
+      <p>
+        Here are a few things that, had I known them, would have let me move a little faster.
+      </p>
+
+      <h3 class="heading">Makefile and <abbr title="Light Emitting Diode">LED</abbr> blinking</h3>
+      <p>
+        The IceStorm source code is accompanied by some examples that show how to compile some basic code for the iCEstick dev board and ice40-HX8K Breakout Board.
+      </p>
+      <ul>
+        <li><a href="https://github.com/cliffordwolf/icestorm/tree/master/examples">IceStorm examples folder on GitHub</a></li>
+      </ul>
+
+      <h3 class="heading">.pcf pin names</h3>
+      <p>
+        I have never used Verilog before. Part of setting up a project is a .pcf file that defines pin names. I was confused at first about where to find the pin names for the breakout board. Many of the pins for the <abbr title="Input/Output">IO</abbr>'s are printed on the board, but the <abbr title="Light Emitting Diode">LED</abbr>'s are not labeled with the <abbr title="Input/Output">IO</abbr> pins they are connected to.
+      </p>
+      <p>
+        The iCE40HX-8K Breakout Board User Guide has a schematic near the end, which shows which <abbr title="Light Emitting Diode">LED</abbr>'s are connected to which <abbr title="Input/Output">IO</abbr> pins. By comparing the schematic and the .pcf file in the hx8kboard example, I was able to get an idea of what I needed.
+      </p>
+      <ul>
+        <li><a href="http://www.latticesemi.com/view_document?document_id=50373">iCE40HX-8K Breakout Board User Guide from Lattice</a></li>
+        <li><a href="https://github.com/cliffordwolf/icestorm/blob/7d8337a138fef3417b9f41cc6635c9562f4d9b4a/examples/hx8kboard/hx8kboard.pcf">pcf example on GitHub</a></li>
+      </ul>
+
+      <h3 class="heading">iceprog needs -S option to program SRAM</h3>
+      <p>
+        The iCE40HX-8K Breakout Board board has jumpers to decide whether you are programming flash or <abbr title="Static Random Access Memory">SRAM</abbr>. The <abbr title="Static Random Access Memory">SRAM</abbr> is faster to program and has to be reloaded every time you power the board on. The flash stays programmed when you power the board off and on again. To program the <abbr title="Static Random Access Memory">SRAM</abbr>, iceprog needs the -S option! If the jumpers on the board are set for <abbr title="Static Random Access Memory">SRAM</abbr> programming and you forget the -S option, iceprog will just hang forever.
+      </p>
+
+      <div class="code">
+        <div class="code__line">$ iceprog example.bin</div> 
+        <div class="code__line">init..</div>
+        <div class="code__line">cdone: low</div>
+        <div class="code__line">reset..</div>
+        <div class="code__line">cdone: low</div>
+        <div class="code__line">flash ID: 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF</div>
+        <div class="code__line">file size: 135100</div>
+        <div class="code__line">erase 64kB sector at 0x000000..</div>
+      </div>
+
+      <p>
+        It never finished. This worked much better:
+      </p>
+
+      <div class="code">
+        <div class="code__line">$ iceprog -S switch.bin</div>
+        <div class="code__line">init..</div>
+        <div class="code__line">cdone: low</div>
+        <div class="code__line">reset..</div>
+        <div class="code__line">cdone: low</div>
+        <div class="code__line">programming..</div>
+        <div class="code__line">cdone: high</div>
+        <div class="code__line">Bye.</div>
+      </div>
+
+      <h3 class="heading">Internal Pull-up Resistors</h3>
+      <p>
+        The iCE40 boards have interal pull-up resistors, but I had some trouble finding documentation and examples of how to use them. There is detailed documentation in the LATTICE ICE Technology Library. There is an example in "Synthesizing Verilog for Lattice ICE40 FPGAs (Paul Martin)" on YouTube, linked from the IceStorm home page, starting at 17m16s. Here's a little bit longer example.
+      </p>
+      <p>
+        This design lights an <abbr title="Light Emitting Diode">LED</abbr> while a momentary switch is pressed. It will need an external pull-up resistor to keep the switch_pin input high, and a switch that will connect the pin to ground when pressed.
+      </p>
+
+      <pre class="code">module switch (
+  input  switch_pin,
+  output led
+);
+
+  assign led = !switch_pin;
+
+endmodule</pre>
+
+      <p>
+        This version uses an internal pull-up:
+      </p>
+
+      <pre class="code">module led_switch (
+  input  switch,
+  output led
+);
+
+  wire switch_with_pullup;
+  
+  SB_IO #(
+    .PIN_TYPE(6'b0000_01),      // no output, simple input pin
+    .PULLUP(1'b1)               // enable pullup
+  ) switch_sb_io_instance (
+    .PACKAGE_PIN(switch),
+    .D_IN_0(switch_with_pullup)
+  );
+
+  assign led = !switch_with_pullup;
+
+endmodule</pre>
+
+      <ul>
+        <li><a href="https://youtu.be/s7fNTF8nd8A?t=17m16s">Synthesizing Verilog for Lattice ICE40 FPGAs (Paul Martin) on YouTube</a></li>
+        <li><a href="http://www.latticesemi.com/view_document?document_id=51982">LATTICE ICE Technology Library from Lattice</a></li>
+      </ul>
+
+      <footer class="footer"><span class="author">Josh</span> - <span class="edit-date">December 18, 2016</span></footer>
+    </div>
+  </body>
+</html>
