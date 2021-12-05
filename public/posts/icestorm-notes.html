@@ -2,12 +2,13 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Josh Headapohl</title>
     <style>
         body {
           font-family: sans-serif;
           font-size: 25px;
-          line-height: 1.5em;
+          line-height: 1.5;
           color: #36454F;
           background-color: #FFFFFF;
         }
@@ -21,6 +22,17 @@
           text-decoration: none;
         }
 
+        .home-link:hover,
+        .home-link:active,
+        .home-link:focus {
+          text-decoration: underline;
+        }
+
+        .home-link:link,
+        .home-link:visited {
+          color: #043B66;
+        }
+
         .layout__column {
           max-width: 50em;
           margin-left: auto;
@@ -29,11 +41,12 @@
 
         .heading {
           color: #043B66;
-          font-weight: bold;
+          font-weight: normal;
         }
-
+        
         .heading--main {
           text-align: center;
+          line-height: 1;
         }
 
         .code {
@@ -43,7 +56,8 @@
           color: lightgray;
           background: #222;
           border-radius: 10px;
-          line-height: 1.2em;
+          line-height: 1.2;
+          overflow-x: auto;
         }
 
         .code__line {
@@ -56,7 +70,7 @@
   </head>
   <body>
     <div class="layout__column">
-      <a href="/" class="home-link"><h1 class="heading heading--main">Josh Headapohl</h1></a>
+      <h1 class="heading heading--main"><a href="/" class="home-link">Josh Headapohl</a></h1>
       <h2 class="heading">IceStorm Notes</h2>
       <p>
         <a href="http://www.clifford.at/icestorm/">Project IceStorm</a> provides all the open-source software you need to run code on a handful of <abbr title="Field Programmable Gate Array">FPGA</abbr>s. Unlike the official Lattice programming tools, it can run on my Mac (or a Raspberry Pi!) I have a project in mind, so I picked up an <a href="http://www.latticesemi.com/en/Products/DevelopmentBoardsAndKits/iCE40HX8KBreakoutBoard.aspx">iCE40-HX8K Breakout Board</a> and started learning how to use it.
